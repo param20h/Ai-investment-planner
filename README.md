@@ -8,7 +8,7 @@ Vesta AI is a full-stack investment research platform built using **Next.js (App
 
 Vesta AI simplifies fundamental and sentiment analysis for retail and institutional investors. A user enters a company name, and the system executes a structured multi-stage research and reasoning pipeline:
 1. **Ticker Resolution & Raw Research**: Converts the company name to a stock ticker and fetches financial fundamentals (FMP API) and recent news/market sentiment (Tavily Search API).
-2. **Structured Signal Extraction**: Extracts sentiment summary, growth trends, key risks, and competitive advantages using Google Gemini 2.5 Flash (Free Tier).
+2. **Structured Signal Extraction**: Extracts sentiment summary, growth trends, key risks, and competitive advantages using Groq Llama 3.3 70B (Free Tier).
 3. **Grounded Decisioning**: Evaluates the signals to produce a final verdict, confidence score, and bulleted pros/cons.
 
 The user interface features a premium glassmorphic dashboard with radial mesh gradients, progress indicators that update as steps stream from the server, and clean interactive SVG charts showing 5-year financials.
@@ -31,13 +31,13 @@ npm install
 Create a `.env.local` file in the root directory and add the following keys:
 
 ```env
-# Required: Google Gemini API Key for LLM Reasoning (100% Free Tier in Google AI Studio)
-GEMINI_API_KEY=your_gemini_api_key_here
+# Required: Groq API Key for LLM Reasoning (Free Tier at https://console.groq.com)
+GROQ_API_KEY=your_groq_api_key_here
 
 # Required: Tavily Search API Key for News and Sentiment Search (Free Tier available)
 TAVILY_API_KEY=your_tavily_api_key_here
 
-# Optional: Required for Financial Fundamentals (Falls back to Tavily search if not provided)
+# Optional: Required for Financial Fundamentals (Falls back to Groq LLM if not provided)
 FMP_API_KEY=your_fmp_free_api_key_here
 ```
 
@@ -67,14 +67,14 @@ Unlike simple LLM chains that run in a single prompt and are prone to hallucinat
                            │
                            ▼
 ┌────────────────────────────────────────────────────────┐
-│ 2. Analyze Node (Gemini 2.5 Flash)                     │
+│ 2. Analyze Node (Groq Llama 3.3 70B)                    │
 │    - Synthesizes raw text/numbers into signals         │
 │    - Sentiment summary, growth trends, key risks       │
 └──────────────────────────┬─────────────────────────────┘
                            │
                            ▼
 ┌────────────────────────────────────────────────────────┐
-│ 3. Decide Node (Gemini 2.5 Flash)                      │
+│ 3. Decide Node (Groq Llama 3.3 70B)                     │
 │    - Receives ONLY the output of the Analyze Node      │
 │    - Grounds reasoning strictly in extracted signals    │
 │    - Formulates Invest/Watch/Pass + Pros/Cons          │
@@ -94,8 +94,8 @@ Unlike simple LLM chains that run in a single prompt and are prone to hallucinat
 ## Key Decisions & Trade-Offs
 
 ### What Was Included
-* **100% Free Tier Stack**: The app relies exclusively on free tiers. The LLM reasoning runs on **Google Gemini 2.5 Flash**, which has a robust free tier (15 RPM / 1,500 RPD) via Google AI Studio. 
-* **FMP + Tavily Dual Pipeline**: FMP provides structured fundamentals, while Tavily captures sentiment. If FMP or Tavily are blocked by local firewalls (e.g. returning 502 Bad Gateway), the Research Node automatically falls back to a **Gemini Agentic Generator** that safely extracts company data, tickers, and recent news based on its internal knowledge, ensuring the entire agent pipeline remains 100% functional.
+* **100% Free Tier Stack**: The app relies exclusively on free tiers. The LLM reasoning runs on **Groq Llama 3.3 70B Versatile**, which provides fast inference with a generous free tier via Groq Cloud. Falls back to **Llama 3.1 8B Instant** if the primary model is unavailable.
+* **FMP + Tavily Dual Pipeline**: FMP provides structured fundamentals, while Tavily captures sentiment. If FMP or Tavily are blocked by local firewalls (e.g. returning 502 Bad Gateway), the Research Node automatically falls back to a **Groq LLM Generator** that safely extracts company data, tickers, and recent news based on its internal knowledge, ensuring the entire agent pipeline remains 100% functional.
 * **Inline SVG Charts**: Rather than using heavy charting libraries (like Recharts) which frequently conflict with Next.js 15 / React 19 SSR, we built customized responsive SVG charts. They are highly interactive, light, and compile-safe.
 
 ### What Was Left Out
