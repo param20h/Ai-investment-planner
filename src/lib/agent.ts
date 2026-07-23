@@ -80,6 +80,7 @@ async function fetchFmp(endpoint: string, apiKey: string) {
 const GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
 const MAX_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 2000;
+const GROQ_TIMEOUT_MS = 30000; // 30s timeout per request
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -99,29 +100,37 @@ async function callGroq(prompt: string, apiKey: string, model: string, systemIns
     role: "user",
     content: prompt + "\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation.",
   });
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-    }),
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    const err = new Error(`Groq ${model}: ${response.status} - ${errorText.substring(0, 200)}`);
-    (err as any).status = response.status;
-    throw err;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!response.ok) {
+      const errorText = await response.text();
+      const err = new Error(`Groq ${model}: ${response.status} - ${errorText.substring(0, 200)}`);
+      (err as any).status = response.status;
+      throw err;
+    }
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error(`Groq ${model}: empty response`);
+    return text.trim();
+  } finally {
+    clearTimeout(timeout);
   }
-  const data = await response.json();
-  const text = data.choices?.[0]?.message?.content;
-  if (!text) throw new Error(`Groq ${model}: empty response`);
-  return text.trim();
 }
 
 // Unified Groq caller with retry + model fallback
