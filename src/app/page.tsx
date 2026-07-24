@@ -406,6 +406,25 @@ export default function Home() {
                   style={{ width: `${getProgressPercentage()}%` }}
                 ></div>
               </div>
+              {/* Step indicator dots */}
+              <div className="flex justify-between px-2">
+                {(["research", "analyze", "decide"] as const).map((step, i) => {
+                  const stepLabels = ["Research", "Analyze", "Decide"];
+                  const isActive = currentStep === step;
+                  const isPast = getProgressPercentage() > (i + 1) * 30;
+                  return (
+                    <div key={step} className="flex flex-col items-center gap-1.5">
+                      <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        isActive ? "bg-indigo-500 ring-4 ring-indigo-200 scale-110" :
+                        isPast ? "bg-emerald-500" : "bg-gray-300"
+                      }`}></div>
+                      <span className={`text-[10px] font-bold uppercase tracking-wide ${
+                        isActive ? "text-indigo-600" : isPast ? "text-emerald-600" : "text-gray-400"
+                      }`}>{stepLabels[i]}</span>
+                    </div>
+                  );
+                })}
+              </div>
               <div className="flex items-start gap-3 pt-1 text-sm text-gray-700">
                 <Loader2 className="w-5 h-5 text-indigo-500 animate-spin flex-shrink-0 mt-0.5" />
                 <p className="font-semibold leading-relaxed">{statusMessage}</p>
