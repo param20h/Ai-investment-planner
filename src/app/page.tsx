@@ -661,6 +661,23 @@ export default function Home() {
           )}
 
         </main>
+
+        {/* Footer */}
+        <footer className="mt-16 pb-8 text-center space-y-3">
+          <div className="flex justify-center gap-2 flex-wrap">
+            {["Next.js", "LangGraph", "Groq", "Tailwind CSS", "TypeScript"].map((tech) => (
+              <span
+                key={tech}
+                className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-500 bg-white/40 backdrop-blur-sm border border-white/50 rounded-full"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 font-medium">
+            Vesta AI &middot; Built with LangGraph.js &middot; Powered by Groq
+          </p>
+        </footer>
       </div>
     </div>
   );
