@@ -77,7 +77,7 @@ async function fetchFmp(endpoint: string, apiKey: string) {
 }
 
 // ── Groq LLM Provider (Llama 3.3 70B, free tier) ──────────────────────────
-const GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+const GROQ_MODELS = ["llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct", "qwen/qwen3-32b"];
 const MAX_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 2000;
 const GROQ_TIMEOUT_MS = 30000; // 30s timeout per request
