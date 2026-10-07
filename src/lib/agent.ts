@@ -76,8 +76,9 @@ async function fetchFmp(endpoint: string, apiKey: string) {
   return response.json();
 }
 
-// ── Groq LLM Provider (Llama 3.3 70B, free tier) ──────────────────────────
-const GROQ_MODELS = ["llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct", "qwen/qwen3-32b"];
+// ── Groq LLM Provider (use model names that Groq exposes to the current account) ──────────────────────────
+// `llama-3.1-8b-instant` is no longer available for many accounts and causes the 404 seen in production.
+const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"];
 const MAX_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 2000;
 const GROQ_TIMEOUT_MS = 30000; // 30s timeout per request
